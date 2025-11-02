@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from '../schema';
+import { ReportsService } from './reports.service';
 
 @Module({
   providers: [
@@ -21,7 +22,8 @@ import * as schema from '../schema';
       },
       inject: [ConfigService],
     },
+    ReportsService,
   ],
-  exports: ['DATABASE_CONNECTION'],
+  exports: ['DATABASE_CONNECTION', ReportsService],
 })
 export class DatabaseModule {}

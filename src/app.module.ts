@@ -9,7 +9,7 @@ import { MessageHandlerService } from './message-handler/message-handler.service
 import { ConsumerModule } from './consumer/consumer.module';
 import { PublisherModule } from './publisher/publisher.module';
 import CommonModule from './common/common.module';
-// import { DatabaseModule } from './database/database.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import CommonModule from './common/common.module';
     }),
     
     CommonModule,
-    // DatabaseModule,
+    DatabaseModule,
     ConsumerModule,
     PublisherModule,
   ],
