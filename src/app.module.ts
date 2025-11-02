@@ -6,9 +6,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { sqsConfigFactory } from './config/sqs.config';
 import { MessageHandlerService } from './message-handler/message-handler.service';
-// import { ConsumerModule } from './consumer/consumer.module';
+import { ConsumerModule } from './consumer/consumer.module';
 import { PublisherModule } from './publisher/publisher.module';
-// import CommonModule from './common/common.module';
+import CommonModule from './common/common.module';
 // import { DatabaseModule } from './database/database.module';
 
 @Module({
@@ -24,12 +24,12 @@ import { PublisherModule } from './publisher/publisher.module';
       inject: [ConfigService],
     }),
     
-    // CommonModule,
+    CommonModule,
     // DatabaseModule,
-    // ConsumerModule,
+    ConsumerModule,
     PublisherModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MessageHandlerService],
+  providers: [AppService],
 })
 export class AppModule {}

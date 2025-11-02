@@ -1,3 +1,5 @@
+// Initial testing for receiving messages not being used now
+
 import { Injectable } from '@nestjs/common';
 import type { Message } from '@aws-sdk/client-sqs';
 import { SqsMessageHandler } from '@ssut/nestjs-sqs';
