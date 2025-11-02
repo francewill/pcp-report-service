@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from '../schema';
 import { ReportsService } from './reports.service';
+import { TenantsService } from './tenants.service';
 
 @Module({
   providers: [
@@ -23,7 +24,8 @@ import { ReportsService } from './reports.service';
       inject: [ConfigService],
     },
     ReportsService,
+    TenantsService,
   ],
-  exports: ['DATABASE_CONNECTION', ReportsService],
+  exports: ['DATABASE_CONNECTION', ReportsService, TenantsService],
 })
 export class DatabaseModule {}

@@ -6,6 +6,7 @@ import { randomUUID } from 'crypto';
 import { generateTenantReportCsv, getTenantReportColumns } from './csv-builder';
 import { TenantReportData } from './types';
 import { ReportsService } from '../../../database/reports.service';
+import { TenantsService } from '../../../database/tenants.service';
 
 @Injectable()
 export class MonthlyTenantReportConsumerService {
@@ -15,6 +16,7 @@ export class MonthlyTenantReportConsumerService {
   constructor(
     private readonly s3Service: S3Service,
     private readonly reportsService: ReportsService,
+    private readonly tenantsService: TenantsService,
   ) {}
 
   @SqsMessageHandler('pcp-tenant-monthly-report', false)
@@ -97,41 +99,46 @@ export class MonthlyTenantReportConsumerService {
   }
 
   private async generateCsvBuffer(): Promise<Buffer> {
-    // TODO: Fetch tenant data from database
-    // For now, using sample data
-    const tenantData: TenantReportData[] = [
-      {
-        accountNumber: '001',
-        equifaxAccountNumber: 'EQ001',
-        reportingMonth: '2024-05',
-        tenantFirstName: 'John',
-        tenantMiddleName: 'A',
-        tenantSurname: 'Doe',
-        tenantSuffix: null,
-        addressNumber: '123',
-        addressStreet: 'Main St',
-        addressUnit: '4B',
-        addressPOBox: null,
-        addressCity: 'Metropolis',
-        addressProvince: 'ON',
-        addressPostalCode: 'A1A1A1',
-        dateOfBirth: '1990-01-01',
-        telephoneNumber: '555-1234',
-        sin: '123-456-789',
-        dateAccountOpened: '2020-01-15',
-        monthlyRentAmount: '1200.00',
-        expectedPayment: '1200.00',
-        actualPaymentReceived: '1200.00',
-        paymentStatus: 'On Time',
-        historicalAccountStatus: null,
-        rentPastDue: '0.00',
-        dateOfFirstMissedRentPayment: null,
-        dateAccountClosed: null,
-        dateOfLastRentPayment: '2024-05-01',
-        leaseType: '1',
-      },
+    // Fetch real tenant data from database
+    const tenants = await this.tenantsService.getAllActiveTenants();
 
-    ];
+    this.logger.log(`Fetched ${tenants.length} tenants from database`);
+
+    // Calculate current reporting month
+    const currentDate = new Date();
+    const reportingMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+
+    // Map tenant data to report format with real names and empty values for other fields
+    const tenantData: TenantReportData[] = tenants.map((tenant) => ({
+      accountNumber: '',
+      equifaxAccountNumber: '',
+      reportingMonth,
+      tenantFirstName: tenant.first_name || '',
+      tenantMiddleName: tenant.middle_name || '',
+      tenantSurname: tenant.last_name || '',
+      tenantSuffix: null,
+      addressNumber: '',
+      addressStreet: '',
+      addressUnit: '',
+      addressPOBox: null,
+      addressCity: '',
+      addressProvince: '',
+      addressPostalCode: '',
+      dateOfBirth: '',
+      telephoneNumber: '',
+      sin: '',
+      dateAccountOpened: '',
+      monthlyRentAmount: '0.00',
+      expectedPayment: '0.00',
+      actualPaymentReceived: '0.00',
+      paymentStatus: '',
+      historicalAccountStatus: null,
+      rentPastDue: '0.00',
+      dateOfFirstMissedRentPayment: null,
+      dateAccountClosed: null,
+      dateOfLastRentPayment: '',
+      leaseType: '',
+    }));
 
     // Log column names optional for debugging
     const columns = getTenantReportColumns();
