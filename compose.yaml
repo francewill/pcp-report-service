@@ -1,0 +1,52 @@
+services:
+  localstack:
+    container_name: localstack-sqs
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"  
+    environment:
+      SERVICES: sqs
+      DEBUG: 1
+    volumes:
+      - localstack_data:/var/lib/localstack
+    networks:
+      - localnet
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"  # S3 API endpoint
+      - "9001:9001"  # MinIO console (UI)
+    volumes:
+      - minio_data:/data
+    networks:
+      - localnet
+
+  database:
+    container_name: pg-db
+    image: postgres:15
+    restart: always
+    ports:
+      - "5000:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: renkoro
+      POSTGRES_DB: pcp_local_sentinel
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - localnet
+
+networks:
+  localnet:
+    driver: bridge
+
+volumes:
+  localstack_data:
+  postgres_data:
+  minio_data:
